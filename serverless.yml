@@ -78,11 +78,7 @@ functions:
           cors: true
       - http:
           path: /queue
-          method: ANY
-          cors: true
-      - http:
-          path: /new_user
-          method: ANY
+          method: post
           cors: true
       - http:
           path: /new_user

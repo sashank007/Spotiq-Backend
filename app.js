@@ -7,12 +7,12 @@ const bodyParser = require("body-parser");
 const request = require("request");
 const querystring = require("querystring");
 const MongoClient = require("mongodb").MongoClient;
+var Pusher = require("pusher");
 
 const AuthConfig = require("./config");
 const redirect_uri = `${AuthConfig.HOST}/callback`;
 const client_id = AuthConfig.CLIENT_ID;
 const client_secret = AuthConfig.CLIENT_SECRET;
-const Queue = require("./queue");
 
 const mongoUser = "sas";
 const mongoDbName = "Spotiq";
@@ -34,10 +34,42 @@ const client = new MongoClient(mongoConnStr, {
 });
 let db;
 
+var pusher = new Pusher({
+  appId: "882030",
+  key: "a3ef4965765d2b7fea88",
+  secret: "f97e508d15786c2958bd",
+  cluster: "us3",
+  encrypted: true
+});
+
 const createConn = async () => {
   await client.connect();
   db = client.db("Spotiq");
 };
+
+app.post("/router", (req, res) => {
+  const asyncTrigger = msg => {
+    return new Promise((resolve, reject) => {
+      pusher.trigger("queue-channel", "queue-item", msg, (err, req, res) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res);
+      });
+    });
+  };
+
+  const pushNotification = async msg => {
+    return await asyncTrigger(msg);
+  };
+
+  pushNotification({ queue: req.body.queue, privateId: req.body.privateId });
+  // channels_client.trigger("queue-channel", "queue-item", {
+  //   queue: req.body.queue,
+  //   privateId: req.body.privateId
+  // });
+  return res.json({ success: true, message: "Added item to queue" });
+});
 
 const performQueryUpdateUsers = async (privateId, userName, userId) => {
   const users = db.collection("users");
@@ -72,7 +104,7 @@ app.get("/", async (req, res, next) => {
 
 //Handle the GET endpoint on the root route /
 app.get("/express_backend", async (req, res, next) => {
-  res.status(200).send("BACKEND IS RUNNING... REDIRECT URI: ", redirect_uri);
+  res.status(200).send("BACKEND IS RUNNING... REDIRECT URI: ");
 });
 
 //add new user to mongodb
@@ -180,6 +212,6 @@ app.get("/login", function(req, res) {
   );
 });
 
-app.use("/queue", Queue);
+// app.use("/queue", Queue);
 
 module.exports.server = sls(app);
