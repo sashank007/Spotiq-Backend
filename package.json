@@ -16,8 +16,10 @@
     "mongodb": "^3.3.3",
     "pusher": "^3.0.0",
     "pusher-js": "^5.0.2",
+    "pusher-lambda-promise": "^0.1.2",
     "querystring": "^0.2.0",
     "request": "^2.88.0",
-    "serverless-http": "^2.3.0"
+    "serverless-http": "^2.3.0",
+    "socket.io": "^2.3.0"
   }
 }
