@@ -14,6 +14,7 @@ var socket = require("socket.io");
 var port = process.env.PORT || 5000;
 
 const AuthConfig = require("./config");
+const appURL = "https://spotiq.netlify.com/";
 const redirect_uri = `${AuthConfig.HOST}/callback`;
 const client_id = AuthConfig.CLIENT_ID;
 const client_secret = AuthConfig.CLIENT_SECRET;
@@ -177,7 +178,7 @@ app.get("/callback", function(req, res) {
     var access_token = body.access_token;
     let expiration = body.expires_in;
     console.log("body of token: ", body);
-    let uri = process.env.FRONTEND_URI || "http://localhost:3000";
+    let uri = process.env.FRONTEND_URI || appURL;
     //set the access token insidedb
     //in db, once access token set , pair with user name
     res.redirect(uri + "?access_token=" + access_token + "&expr=" + expiration);
