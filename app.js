@@ -175,11 +175,13 @@ app.get("/callback", function(req, res) {
   };
   request.post(authOptions, function(error, response, body) {
     var access_token = body.access_token;
-    let uri = process.env.FRONTEND_URI || "https://spotiq.netlify.com/";
-    // window.localStorage.setItem("access_token", access_token);
-    res.redirect(uri + "?access_token=" + access_token);
+    let expiration = body.expires_in;
+    console.log("body of token: ", body);
+    let uri = process.env.FRONTEND_URI || "http://localhost:3000";
+    //set the access token insidedb
+    //in db, once access token set , pair with user name
+    res.redirect(uri + "?access_token=" + access_token + "&expr=" + expiration);
   });
-  // res.status(200).send("Login done");
 });
 
 app.get("/login", function(req, res) {
@@ -231,6 +233,40 @@ app.post("/update_user", async function(req, res) {
       console.log("1 document updated");
     });
     res.send({ status: 200, message: "Succesfully updated" });
+  } catch (e) {
+    res.send({
+      error: e.message
+    });
+    return;
+  }
+});
+
+app.post("/get_all_users", async function(req, res) {
+  var id = req.body.privateId;
+  if (!client.isConnected()) {
+    // Cold start or connection timed out. Create new connection.
+    try {
+      await createConn();
+    } catch (e) {
+      res.json({
+        error: e.message
+      });
+      return;
+    }
+  }
+
+  // Connection ready. Perform insert and return result.
+  try {
+    const users = db.collection("users");
+    const query = { privateId: id };
+    users.find(query).toArray((err, result) => {
+      console.log("result for user: ", result);
+      res.send({
+        search_id: id,
+        users: result
+      });
+    });
+    return;
   } catch (e) {
     res.send({
       error: e.message

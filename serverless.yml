@@ -85,7 +85,7 @@ functions:
           method: ANY
           cors: true
       - http:
-          path: /get_user_id
+          path: /get_user_by_id
           method: ANY
           cors: true
       - http:
@@ -94,6 +94,14 @@ functions:
           cors: true
       - http:
           path: /get_queue
+          method: ANY
+          cors: true
+      - http:
+          path: /get_all_users
+          method: ANY
+          cors: true
+      - http:
+          path: /update_user
           method: ANY
           cors: true
 #    The following are a few example events you can configure
